@@ -1,0 +1,42 @@
+// keyboard plate
+//
+{% for line in source %}
+// {{line}}
+{%- endfor %}
+//
+// All units are in mm
+//
+
+$fn=64;
+
+module cherry1u(x, y) {
+    translate([x, y]) {
+        square(14);
+{%- if dogbone %}
+        ofs = sqrt({{tool_size}} * {{tool_size}} / 2);
+        translate([ofs, ofs]) circle({{tool_size}});
+        translate([ofs, 14 - ofs]) circle({{tool_size}});
+        translate([14 - ofs, ofs]) circle({{tool_size}});
+        translate([14 - ofs, 14 - ofs]) circle({{tool_size}});
+{%- endif %}
+    }
+};
+
+module drill(size, x, y) {
+    translate([x, y]) circle(size);
+}
+
+difference() {
+    square(size=[{{width}},{{height}}]);
+    union() {
+        // Keys
+{%- for fn, x, y in keys %}
+        {{fn}}({{x}}, {{y}});
+{%- endfor %}
+
+        // Drills (screws)
+{%- for size, x, y in drills %}
+        drill({{size}}, {{x}}, {{y}});
+{%- endfor %}
+    }
+}
