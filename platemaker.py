@@ -100,6 +100,7 @@ def genscad(args, keydata):
                  'height': height,
                  'keys': keys,
                  'source': printed_source,
+                 'cli': ' '.join(args.cli),
                  'dogbone': args.dogbone,
                  'widen': args.widen,
                  'drills': drills,
@@ -148,6 +149,8 @@ def get_parser():
 
 def main(rawargs):
     args = get_parser().parse_args(rawargs)
+
+    args.cli = sys.argv
 
     with open(args.infile, 'r') as f:
         j = json.loads(f.read())
