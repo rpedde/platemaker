@@ -103,6 +103,8 @@ def genscad(args, keydata):
                  'dogbone': args.dogbone,
                  'widen': args.widen,
                  'drills': drills,
+                 'rounded': args.rounded,
+                 'rounded_toolsize': args.rounded_toolsize,
                  'tool_size': args.tool_size}
 
     outfile = args.outfile
@@ -126,9 +128,9 @@ def get_parser():
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 
-    _ = subparsers.add_parser('poker', help='poker 60%')
-    sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
+    poker_p = subparsers.add_parser('poker', help='poker 60%')
 
+    sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
     sandwich_p.add_argument('--leftpadding', default=0, type=int)
     sandwich_p.add_argument('--rightpadding', default=0, type=int)
     sandwich_p.add_argument('--toppadding', default=0, type=int)
@@ -136,6 +138,10 @@ def get_parser():
     sandwich_p.add_argument('--drillsize', default=3.5, type=float)
     sandwich_p.add_argument('--topscrews', default=0)
     sandwich_p.add_argument('--sidescrews', default=0)
+    sandwich_p.add_argument('--rounded', action='store_true')
+    sandwich_p.add_argument(
+        '--rounded_toolsize', default=6.35,
+        help='fit inner corner made with tool of this size (mm)')
 
     return parser
 

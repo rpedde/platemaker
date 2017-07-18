@@ -26,8 +26,25 @@ module drill(size, x, y) {
     translate([x, y]) circle(size);
 }
 
+module rounded_rect(x, y, width, height, radius) {
+    translate([x, y]) {
+        hull() {
+            translate([radius, radius]) circle(r=radius);
+            translate([radius, height - radius]) circle(r=radius);
+            translate([width - radius, radius]) circle(r=radius);
+            translate([width - radius, height -radius]) circle(r=radius);
+        }
+    }
+}
+
+
 difference() {
+{% if rounded %}
+    rounded_rect(0, 0, {{width}}, {{height}}, {{rounded_toolsize / 2}});
+{%- else %}
     square(size=[{{width}},{{height}}]);
+{%- endif %}
+
     union() {
         // Keys
 {%- for fn, x, y in keys %}
