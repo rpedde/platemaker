@@ -112,6 +112,7 @@ def genscad(args, keydata):
     if not outfile:
         outfile = '.'.join(os.path.basename(
             os.path.abspath(args.infile)).split('.')[:-1])
+        outfile += '-plate'
 
     template_file('plate.scad.j2', '%s.scad' % outfile, j2_kwargs)
 
