@@ -11,6 +11,26 @@
 
 $fn=64;
 
+module cherry_stab(x, y, w) {
+  // w = 23.8 for 2u, 2.25u, 2.75u
+  // w = 38.1 for 3u
+  // w = 133.35 for 8u
+
+  translate([x + 7 - (w/2) - 4.2, y - 1.2]) {
+    square([7.525, 13.5]);
+  }
+  translate([x + 7 + (w/2) - 3.325, y - 1.2]) {
+    square([7.525, 13.5]);
+  }
+
+  translate([x + 7 - (w/2), y + 4]) {
+    square([w, 6]);
+  }
+}
+
+module cherry_6_25u_stab(x, y) {
+}
+
 module cherry1u(x, y) {
     translate([x, y]) {
         square(14);
@@ -51,6 +71,11 @@ difference() {
         // Keys
 {%- for fn, x, y in keys %}
         {{fn}}({{x}}, {{y}});
+{%- endfor %}
+
+        // Stabs
+{%- for fn, x, y, w in stabs %}
+        {{fn}}({{x}}, {{y}}, {{w}});
 {%- endfor %}
 
         // Drills (screws)

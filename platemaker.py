@@ -20,6 +20,7 @@ def template_file(infile, outfile, kwargs):
 def genscad(args, keydata):
     max_rows = len(keydata)
     keys = []
+    stabs = []
 
     key_xofs = 0
     key_yofs = 0
@@ -65,6 +66,18 @@ def genscad(args, keydata):
                              key_xpos + key_xofs,
                              key_ypos + key_yofs))
 
+                if nextkey >= 2 and nextkey <= 2.75:
+                    stabs.append(('cherry_stab',
+                                  key_xpos + key_xofs,
+                                  key_ypos + key_yofs,
+                                  23.8))
+                if nextkey == 6.25:
+                    stabs.append(('cherry_stab',
+                                  key_xpos + key_xofs,
+                                  key_ypos + key_yofs,
+                                  100.0))
+
+
                 row_width += nextkey
                 nextkey = 1
 
@@ -99,6 +112,7 @@ def genscad(args, keydata):
     j2_kwargs = {'width': width,
                  'height': height,
                  'keys': keys,
+                 'stabs': stabs,
                  'source': printed_source,
                  'cli': ' '.join(args.cli),
                  'dogbone': args.dogbone,
@@ -127,6 +141,10 @@ def get_parser():
     parser.add_argument('--widen', help='widen', action='store_true')
     parser.add_argument('--tool-size', default=3.175,
                         help='tool size in mm (1/4" = 6.35mm, 1/8" = 3.175mm)')
+    parser.add_argument('--rounded', action='store_true')
+    parser.add_argument(
+        '--rounded_toolsize', default=6.35,
+        help='fit inner corner made with tool of this size (mm)')
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 
@@ -140,10 +158,6 @@ def get_parser():
     sandwich_p.add_argument('--drillsize', default=3.5, type=float)
     sandwich_p.add_argument('--topscrews', default=0)
     sandwich_p.add_argument('--sidescrews', default=0)
-    sandwich_p.add_argument('--rounded', action='store_true')
-    sandwich_p.add_argument(
-        '--rounded_toolsize', default=6.35,
-        help='fit inner corner made with tool of this size (mm)')
 
     return parser
 
