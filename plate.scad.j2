@@ -48,6 +48,10 @@ module drill(size, x, y) {
     translate([x, y]) circle(size);
 }
 
+module rect(width, height, x, y) {
+    translate([x, y]) square([width, height]);
+}
+
 module rounded_rect(x, y, width, height, radius) {
     translate([x, y]) {
         hull() {
@@ -81,6 +85,11 @@ difference() {
         // Drills (screws)
 {%- for size, x, y in drills %}
         drill({{size}}, {{x}}, {{y}});
+{%- endfor %}
+
+        // Rects
+{%- for width, height, x, y in rects %}
+        rect({{width}}, {{height}}, {{x}}, {{y}});
 {%- endfor %}
     }
 }

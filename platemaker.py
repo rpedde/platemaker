@@ -21,6 +21,7 @@ def genscad(args, keydata):
     max_rows = len(keydata)
     keys = []
     stabs = []
+    rects = []
 
     key_xofs = 0
     key_yofs = 0
@@ -106,13 +107,39 @@ def genscad(args, keydata):
                            height - (1.5 * args.drillsize)))
 
     else:  # poker
-        pass
+        drill_width = 6.35/2
+
+        # sides
+        drills.append((drill_width, width/2 - 139, height/2 - 9.2))
+        drills.append((drill_width, width/2 + 139, height/2 - 9.2))
+
+        # tab and pipe
+        drills.append((drill_width, width/2 - 117.3, height/2 + 19.4))
+        drills.append((drill_width, width/2 + 117.55, height/2 + 19.4))
+
+        # g/h
+        drills.append((drill_width, width/2 - 14.3, height/2 - 0))
+
+        # space
+        drills.append((drill_width, width/2 + 48, height/2 - 37.9))
+
+        rects.append((1 + (width/2 - 139),
+                      drill_width * 2,
+                      -1,
+                      height/2 - (9.2 + drill_width)))
+
+        rects.append((1 + (width/2 - 139),
+                      drill_width * 2,
+                      width/2 + 139,
+                      height/2 - (9.2 + drill_width)))
+
 
     printed_source = [json.dumps(x) for x in keydata]
     j2_kwargs = {'width': width,
                  'height': height,
                  'keys': keys,
                  'stabs': stabs,
+                 'rects': rects,
                  'source': printed_source,
                  'cli': ' '.join(args.cli),
                  'dogbone': args.dogbone,
@@ -140,15 +167,17 @@ def get_parser():
     parser.add_argument('--dogbone', help='make dogbones', action='store_true')
     parser.add_argument('--widen', help='widen', action='store_true')
     parser.add_argument('--tool-size', default=3.175,
+                        type=float,
                         help='tool size in mm (1/4" = 6.35mm, 1/8" = 3.175mm)')
     parser.add_argument('--rounded', action='store_true')
     parser.add_argument(
-        '--rounded_toolsize', default=6.35,
+        '--rounded-toolsize', default=6.35,
+        type=float,
         help='fit inner corner made with tool of this size (mm)')
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 
-    poker_p = subparsers.add_parser('poker', help='poker 60%')
+    poker_p = subparsers.add_parser('poker', help='poker 60%%')
 
     sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
     sandwich_p.add_argument('--leftpadding', default=0, type=float)
