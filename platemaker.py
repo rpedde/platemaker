@@ -87,7 +87,7 @@ def genscad(args, keydata):
 
                 row_width += nextkey
                 nextkey = 1
-                invert_stab = False
+                invert_stab = 'false'
 
         widths.append(row_width)
 
