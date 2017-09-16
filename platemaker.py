@@ -18,6 +18,8 @@ def template_file(infile, outfile, kwargs):
 
 
 def genscad(args, keydata):
+    stab_type = '%s_stab' % args.stabs
+
     max_rows = len(keydata)
     keys = []
     stabs = []
@@ -51,10 +53,15 @@ def genscad(args, keydata):
     for ridx, row in enumerate(keydata):
         row_width = 0
         nextkey = 1
+        invert_stab = 'false'
+
         for key in row:
             if isinstance(key, dict):
                 if 'w' in key:
                     nextkey = key['w']
+                if '_rs' in key:
+                    if key['_rs'] == 180:
+                        invert_stab = 'true'
             else:
                 # row width is the offset
                 key_xpos = 19.05 * row_width
@@ -68,19 +75,19 @@ def genscad(args, keydata):
                              key_ypos + key_yofs))
 
                 if nextkey >= 2 and nextkey <= 2.75:
-                    stabs.append(('cherry_stab',
+                    stabs.append((stab_type,
                                   key_xpos + key_xofs,
                                   key_ypos + key_yofs,
-                                  23.8))
+                                  23.8, invert_stab))
                 if nextkey == 6.25:
-                    stabs.append(('cherry_stab',
+                    stabs.append((stab_type,
                                   key_xpos + key_xofs,
                                   key_ypos + key_yofs,
-                                  100.0))
-
+                                  100.0, invert_stab))
 
                 row_width += nextkey
                 nextkey = 1
+                invert_stab = False
 
         widths.append(row_width)
 
@@ -133,7 +140,6 @@ def genscad(args, keydata):
                       width/2 + 139,
                       height/2 - (9.2 + drill_width)))
 
-
     printed_source = [json.dumps(x) for x in keydata]
     j2_kwargs = {'width': width,
                  'height': height,
@@ -174,6 +180,10 @@ def get_parser():
         '--rounded-toolsize', default=6.35,
         type=float,
         help='fit inner corner made with tool of this size (mm)')
+    parser.add_argument(
+        '--stabs', choices=['cherry', 'open'],
+        default='cherry',
+        help='what kind of stabilizers')
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 

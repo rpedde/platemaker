@@ -11,20 +11,45 @@
 
 $fn=64;
 
-module cherry_stab(x, y, w) {
+module open_stab(x, y, w, inverted) {
   // w = 23.8 for 2u, 2.25u, 2.75u
   // w = 38.1 for 3u
   // w = 133.35 for 8u
 
-  translate([x + 7 - (w/2) - 4.2, y - 1.2]) {
+  yofs = inverted ? 1.2 : -1.2;
+
+  if (w < 24) {
+    translate([x + 7 - (w/2) - 4.2, y]) {
+      square([w + 8.4, 14]);
+    }
+  }
+  translate([x + 7 - (w/2) - 4.2, y + yofs]) {
     square([7.525, 13.5]);
   }
-  translate([x + 7 + (w/2) - 3.325, y - 1.2]) {
+  translate([x + 7 + (w/2) - 3.325, y + yofs]) {
     square([7.525, 13.5]);
   }
 
-  translate([x + 7 - (w/2), y + 4]) {
-    square([w, 6]);
+}
+
+module cherry_stab(x, y, w, inverted) {
+  // w = 23.8 for 2u, 2.25u, 2.75u
+  // w = 38.1 for 3u
+  // w = 133.35 for 8u
+
+  yofs = inverted ? 1.2 : -1.2;
+
+  translate([x + 7 - (w/2) - 4.2, y + yofs]) {
+    square([7.525, 13.5]);
+  }
+  translate([x + 7 + (w/2) - 3.325, y + yofs]) {
+    square([7.525, 13.5]);
+  }
+
+  if (w < 24) {
+    translate([x + 7 - (w/2), y + 4]) {
+      square([w, 6]);
+    }
   }
 }
 
@@ -78,8 +103,8 @@ difference() {
 {%- endfor %}
 
         // Stabs
-{%- for fn, x, y, w in stabs %}
-        {{fn}}({{x}}, {{y}}, {{w}});
+{%- for fn, x, y, w, inverted in stabs %}
+        {{fn}}({{x}}, {{y}}, {{w}}, {{inverted}});
 {%- endfor %}
 
         // Drills (screws)
