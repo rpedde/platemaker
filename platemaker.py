@@ -95,6 +95,10 @@ def genscad(args, keydata):
         print "too wide for poker"
         sys.exit(1)
 
+    if args.ptype == 'tada' and max(widths) > 16:
+        print "too wide for tada"
+        sys.exit(1)
+
     width = (19.05 * max(widths)) + extra_width
 
     # add screws
@@ -112,8 +116,7 @@ def genscad(args, keydata):
             drills.append((args.drillsize / 2,
                            width - (1.5 * args.drillsize),
                            height - (1.5 * args.drillsize)))
-
-    else:  # poker
+    elif args.ptype == 'poker':
         drill_width = 6.35/2
 
         # sides
@@ -139,6 +142,18 @@ def genscad(args, keydata):
                       drill_width * 2,
                       width/2 + 139,
                       height/2 - (9.2 + drill_width)))
+    elif args.ptype == 'tada':
+        drill_width = 3.5 / 2
+        drills.append((drill_width, 25.575, 67.025))
+        drills.append((drill_width, 25.575, 9.525))  # is this right?
+
+        drills.append((drill_width, 128.575, 47.625))
+
+        drills.append((drill_width, 190.5, 9.525))
+
+        drills.append((drill_width, 260.425, 67.025))
+        drills.append((drill_width, 266.70, 9.525))
+
 
     printed_source = [json.dumps(x) for x in keydata]
     j2_kwargs = {'width': width,
@@ -187,7 +202,8 @@ def get_parser():
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 
-    poker_p = subparsers.add_parser('poker', help='poker 60%%')
+    subparsers.add_parser('poker', help='poker 60%%')
+    subparsers.add_parser('tada', help='tada 68%%')
 
     sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
     sandwich_p.add_argument('--leftpadding', default=0, type=float)
