@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
 
 import jinja2
@@ -15,6 +16,39 @@ def template_file(infile, outfile, kwargs):
 
     with open(outfile, 'w') as f:
         f.write(result)
+
+
+def base_name(outfile, infile):
+    if not outfile:
+        basefile = '.'.join(os.path.basename(
+            os.path.abspath(infile)).split('.')[:-1])
+    else:
+        basefile = outfile
+    basefile += '-plate'
+
+    return basefile
+
+
+def renderscad(args):
+    basename = base_name(args.outfile, args.infile)
+
+    scad_file = '%s.scad' % basename
+    dxf_file = '%s.dxf' % basename
+
+    cmd = 'openscad {scad} -o {dxf}'.format(scad=scad_file, dxf=dxf_file)
+    cmd = cmd.split()
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    returncode = p.poll()
+
+    sys.stdout.write(stdout)
+
+    if returncode:
+        sys.stderr.write('Error executing "%s"\n' % (' '.join(cmd)))
+        sys.stderr.write(stderr)
+
+        sys.exit(1)
 
 
 def genscad(args, keydata):
@@ -53,26 +87,37 @@ def genscad(args, keydata):
     for ridx, row in enumerate(keydata):
         row_width = 0
         nextkey = 1
+        nextheight = 1
         invert_stab = 'false'
 
         for key in row:
             if isinstance(key, dict):
                 if 'w' in key:
                     nextkey = key['w']
+                if 'h' in key:
+                    nextheight = key['h']
                 if '_rs' in key:
                     if key['_rs'] == 180:
                         invert_stab = 'true'
             else:
                 # row width is the offset
+                ydelta = 19.05 / 2 - (19.05 * (nextheight-1)) / 2
+
                 key_xpos = 19.05 * row_width
                 key_width = nextkey * 19.05
                 key_xpos += (key_width / 2) - 7
 
-                key_ypos = (((max_rows - 1) - ridx) * 19.05) + ((19.05 / 2) - 7)
+                key_ypos = (((max_rows - 1) - ridx) * 19.05) + (ydelta - 7)
 
                 keys.append(('cherry1u',
                              key_xpos + key_xofs,
                              key_ypos + key_yofs))
+
+                if nextheight == 2:
+                    stabs.append(('%s_vertical' % stab_type,
+                                  key_xpos + key_xofs,
+                                  key_ypos + key_yofs,
+                                  23.8, invert_stab))
 
                 if nextkey >= 2 and nextkey <= 2.75:
                     stabs.append((stab_type,
@@ -87,16 +132,24 @@ def genscad(args, keydata):
 
                 row_width += nextkey
                 nextkey = 1
+                nextheight = 1
                 invert_stab = 'false'
 
         widths.append(row_width)
 
-    if args.ptype == 'poker' and max(widths) > 15:
+    m_height = len(keydata)
+    m_width = max(widths)
+
+    if args.ptype == 'poker' and m_width > 15:
         print "too wide for poker"
         sys.exit(1)
 
-    if args.ptype == 'tada' and max(widths) > 16:
+    if args.ptype == 'tada' and m_width > 16:
         print "too wide for tada"
+        sys.exit(1)
+
+    if args.ptype == 'numpad' and (m_width > 4 or m_height > 5):
+        print "too large for numpad"
         sys.exit(1)
 
     width = (19.05 * max(widths)) + extra_width
@@ -143,17 +196,29 @@ def genscad(args, keydata):
                       width/2 + 139,
                       height/2 - (9.2 + drill_width)))
     elif args.ptype == 'tada':
-        drill_width = 3.5 / 2
+        drill_width = 6.35 / 2
         drills.append((drill_width, 25.575, 67.025))
         drills.append((drill_width, 25.575, 9.525))  # is this right?
 
         drills.append((drill_width, 128.575, 47.625))
 
-        drills.append((drill_width, 190.5, 9.525))
+        drills.append((drill_width, 187.6, 9.525))
 
         drills.append((drill_width, 260.425, 67.025))
         drills.append((drill_width, 266.70, 9.525))
+    elif args.ptype == 'numpad':
+        drill_width = 6.35 / 2
 
+        # These are the "old" positions for r1.0 boards.  They were dumb.
+        # drills.append((drill_width, 19.05, 19.05))
+        # drills.append((drill_width, 19.05 * 3, 19.05))
+        # drills.append((drill_width, 19.05, 19.05 * 4))
+        # drills.append((drill_width, 19.05 * 3, 19.05 * 4))
+
+        drills.append((drill_width, 19.05, 19.05 * 1.5))
+        drills.append((drill_width, 19.05 * 2.5, 19.05))
+        drills.append((drill_width, 19.05, 19.05 * 4.5))
+        drills.append((drill_width, 19.05 * 3, 19.05 * 4.5))
 
     printed_source = [json.dumps(x) for x in keydata]
     j2_kwargs = {'width': width,
@@ -170,13 +235,8 @@ def genscad(args, keydata):
                  'rounded_toolsize': args.rounded_toolsize,
                  'tool_size': args.tool_size}
 
-    outfile = args.outfile
-    if not outfile:
-        outfile = '.'.join(os.path.basename(
-            os.path.abspath(args.infile)).split('.')[:-1])
-        outfile += '-plate'
-
-    template_file('plate.scad.j2', '%s.scad' % outfile, j2_kwargs)
+    basename = base_name(args.outfile, args.infile)
+    template_file('plate.scad.j2', '%s.scad' % basename, j2_kwargs)
 
 
 def get_parser():
@@ -185,6 +245,7 @@ def get_parser():
     parser.add_argument('infile', help='input file')
     parser.add_argument('--outfile',
                         help='output scad file (default based on infile)')
+    parser.add_argument('--scad-only', action='store_true')
     parser.add_argument('--dogbone', help='make dogbones', action='store_true')
     parser.add_argument('--widen', help='widen', action='store_true')
     parser.add_argument('--tool-size', default=3.175,
@@ -194,7 +255,7 @@ def get_parser():
     parser.add_argument(
         '--rounded-toolsize', default=6.35,
         type=float,
-        help='fit inner corner made with tool of this size (mm)')
+        help='fit inner corner made with tool of this size (default: 6.35)')
     parser.add_argument(
         '--stabs', choices=['cherry', 'open'],
         default='cherry',
@@ -204,6 +265,7 @@ def get_parser():
 
     subparsers.add_parser('poker', help='poker 60%%')
     subparsers.add_parser('tada', help='tada 68%%')
+    subparsers.add_parser('numpad', help='homegrown numpad case')
 
     sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
     sandwich_p.add_argument('--leftpadding', default=0, type=float)
@@ -226,7 +288,7 @@ def main(rawargs):
         j = json.loads(f.read())
 
     genscad(args, j)
-
+    renderscad(args)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

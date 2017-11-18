@@ -32,6 +32,14 @@ module open_stab(x, y, w, inverted) {
 
 }
 
+module cherry_stab_vertical(x, y, w, inverted) {
+  translate([x + 7, y + 7]) rotate(a=90) translate([-(x + 7), -(y + 7)]) cherry_stab(x, y, w, inverted);
+}
+
+module open_stab_vertical(x, y, w, inverted) {
+  translate([x + 7, y + 7]) rotate(a=90) translate([-(x + 7), -(y + 7)]) open_stab(x, y, w, inverted);
+}
+
 module cherry_stab(x, y, w, inverted) {
   // w = 23.8 for 2u, 2.25u, 2.75u
   // w = 38.1 for 3u
