@@ -99,6 +99,8 @@ def genscad(args, keydata):
                 if '_rs' in key:
                     if key['_rs'] == 180:
                         invert_stab = 'true'
+                if 'x' in key:
+                    row_width += key['x']
             else:
                 # row width is the offset
                 ydelta = 19.05 / 2 - (19.05 * (nextheight-1)) / 2
