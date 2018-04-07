@@ -225,6 +225,10 @@ def genscad(args, keydata):
     printed_source = [json.dumps(x) for x in keydata]
     j2_kwargs = {'width': width,
                  'height': height,
+                 'btrim': args.btrim,
+                 'ttrim': args.ttrim,
+                 'rtrim': args.rtrim,
+                 'ltrim': args.ltrim,
                  'keys': keys,
                  'stabs': stabs,
                  'rects': rects,
@@ -262,6 +266,11 @@ def get_parser():
         '--stabs', choices=['cherry', 'open'],
         default='cherry',
         help='what kind of stabilizers')
+
+    parser.add_argument('--btrim', type=float, help='bottom trim', default=0.0)
+    parser.add_argument('--ttrim', type=float, help='top trim', default=0.0)
+    parser.add_argument('--rtrim', type=float, help='right trim', default=0.0)
+    parser.add_argument('--ltrim', type=float, help='left trim', default=0.0)
 
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 

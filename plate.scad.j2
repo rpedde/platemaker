@@ -99,9 +99,12 @@ module rounded_rect(x, y, width, height, radius) {
 
 difference() {
 {% if rounded %}
-    rounded_rect(0, 0, {{width}}, {{height}}, {{rounded_toolsize / 2}});
+    rounded_rect({{rtrim}}, {{btrim}}, {{width}} - {{ltrim}} - {{rtrim}}, {{height}} - {{ttrim}} - {{btrim}}, {{rounded_toolsize / 2}});
 {%- else %}
-    square(size=[{{width}},{{height}}]);
+    translate({{rtrim}},{{btrim}}) {
+      square(size=[{{width}} - {{ltrim}} - {{rtrim}},
+                   {{height}} - {{ttrim}} - {{btrim}}]);
+    }
 {%- endif %}
 
     union() {
