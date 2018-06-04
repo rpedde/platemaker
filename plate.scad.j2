@@ -32,12 +32,50 @@ module open_stab(x, y, w, inverted) {
 
 }
 
+module small_stab(x, y, w, inverted) {
+  // w = 23.8 for 2u, 2.25u, 2.75u
+  // w = 38.1 for 3u
+  // w = 133.35 for 8u
+
+  yofs = inverted ? 1.2 : -1.2;
+  circley = inverted ? 14 : 0;
+
+  if (w < 24) {
+    translate([x + 7 - (w/2) - 4.2, y]) {
+      // square([w + 7.9, 14]);
+      rounded_rect(0, 0, w + 7.9, 14, 3.175/2);
+    }
+  }
+
+  translate([x + 7 - (w/2) - 4.2, y]) {
+    translate([(8.025 - 3.175)/2, yofs]) {
+      square([3.175, 14]);
+      translate([3.175/2, circley]) {
+        circle(3.175/2);
+      }
+    }
+  }
+
+  translate([x + 7 + (w/2) - 4.325, y]) {
+    translate([(8.025 - 3.175)/2, yofs]) {
+      square([3.175, 14]);
+      translate([3.175/2, circley]) {
+        circle(3.175/2);
+      }
+    }
+  }
+}
+
 module cherry_stab_vertical(x, y, w, inverted) {
   translate([x + 7, y + 7]) rotate(a=90) translate([-(x + 7), -(y + 7)]) cherry_stab(x, y, w, inverted);
 }
 
 module open_stab_vertical(x, y, w, inverted) {
   translate([x + 7, y + 7]) rotate(a=90) translate([-(x + 7), -(y + 7)]) open_stab(x, y, w, inverted);
+}
+
+module small_stab_vertical(x, y, w, inverted) {
+  translate([x + 7, y + 7]) rotate(a=90) translate([-(x + 7), -(y + 7)]) small_stab(x, y, w, inverted);
 }
 
 module cherry_stab(x, y, w, inverted) {
@@ -68,11 +106,11 @@ module cherry1u(x, y) {
     translate([x, y]) {
         square(14);
 {%- if dogbone %}
-        ofs = sqrt({{tool_size}} * {{tool_size}} / 2);
-        translate([ofs, ofs]) circle({{tool_size}});
-        translate([ofs, 14 - ofs]) circle({{tool_size}});
-        translate([14 - ofs, ofs]) circle({{tool_size}});
-        translate([14 - ofs, 14 - ofs]) circle({{tool_size}});
+        ofs = sqrt(({{tool_size}}/2) * ({{tool_size}}/2) / 2);
+        translate([ofs, ofs]) circle({{tool_size}} / 2);
+        translate([ofs, 14 - ofs]) circle({{tool_size}} / 2);
+        translate([14 - ofs, ofs]) circle({{tool_size}} / 2);
+        translate([14 - ofs, 14 - ofs]) circle({{tool_size}} / 2);
 {%- endif %}
     }
 };
@@ -95,7 +133,6 @@ module rounded_rect(x, y, width, height, radius) {
         }
     }
 }
-
 
 difference() {
 {% if rounded %}

@@ -172,7 +172,7 @@ def genscad(args, keydata):
                            width - (1.5 * args.drillsize),
                            height - (1.5 * args.drillsize)))
     elif args.ptype == 'poker':
-        drill_width = 6.35/2
+        drill_width = args.drills / 2
 
         # sides
         drills.append((drill_width, width/2 - 139, height/2 - 9.2))
@@ -198,7 +198,7 @@ def genscad(args, keydata):
                       width/2 + 139,
                       height/2 - (9.2 + drill_width)))
     elif args.ptype == 'tada':
-        drill_width = 6.35 / 2
+        drill_width = args.drills / 2
         drills.append((drill_width, 25.575, 67.025))
         drills.append((drill_width, 25.575, 9.525))  # is this right?
 
@@ -209,7 +209,7 @@ def genscad(args, keydata):
         drills.append((drill_width, 260.425, 67.025))
         drills.append((drill_width, 266.70, 9.525))
     elif args.ptype == 'numpad':
-        drill_width = 6.35 / 2
+        drill_width = args.drills / 2
 
         # These are the "old" positions for r1.0 boards.  They were dumb.
         # drills.append((drill_width, 19.05, 19.05))
@@ -263,9 +263,13 @@ def get_parser():
         type=float,
         help='fit inner corner made with tool of this size (default: 6.35)')
     parser.add_argument(
-        '--stabs', choices=['cherry', 'open'],
+        '--stabs', choices=['cherry', 'open', 'small'],
         default='cherry',
         help='what kind of stabilizers')
+
+    parser.add_argument(
+        '--drills', default=6.35, type=float,
+        help='diameter of drills for screw')
 
     parser.add_argument('--btrim', type=float, help='bottom trim', default=0.0)
     parser.add_argument('--ttrim', type=float, help='top trim', default=0.0)
