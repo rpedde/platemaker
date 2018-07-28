@@ -9,7 +9,7 @@
 // All units are in mm
 //
 
-$fn=64;
+$fn=128;
 
 module open_stab(x, y, w, inverted) {
   // w = 23.8 for 2u, 2.25u, 2.75u
@@ -37,30 +37,32 @@ module small_stab(x, y, w, inverted) {
   // w = 38.1 for 3u
   // w = 133.35 for 8u
 
+  gap = 3.2;
+
   yofs = inverted ? 1.2 : -1.2;
   circley = inverted ? 14 : 0;
 
   if (w < 24) {
     translate([x + 7 - (w/2) - 4.2, y]) {
       // square([w + 7.9, 14]);
-      rounded_rect(0, 0, w + 7.9, 14, 3.175/2);
+      rounded_rect(0, 0, w + 7.9, 14, gap/2);
     }
   }
 
   translate([x + 7 - (w/2) - 4.2, y]) {
-    translate([(8.025 - 3.175)/2, yofs]) {
-      square([3.175, 14]);
-      translate([3.175/2, circley]) {
-        circle(3.175/2);
+    translate([(8.025 - gap)/2, yofs]) {
+      square([gap, 14]);
+      translate([gap/2, circley]) {
+        circle(gap/2);
       }
     }
   }
 
   translate([x + 7 + (w/2) - 4.325, y]) {
-    translate([(8.025 - 3.175)/2, yofs]) {
-      square([3.175, 14]);
-      translate([3.175/2, circley]) {
-        circle(3.175/2);
+    translate([(8.025 - gap)/2, yofs]) {
+      square([gap, 14]);
+      translate([gap/2, circley]) {
+        circle(gap/2);
       }
     }
   }
