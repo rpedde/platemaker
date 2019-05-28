@@ -47,23 +47,30 @@ module small_stab(x, y, w, inverted) {
       // square([w + 7.9, 14]);
       rounded_rect(0, 0, w + 7.9, 14, gap/2);
     }
-  }
 
-  translate([x + 7 - (w/2) - 4.2, y]) {
-    translate([(8.025 - gap)/2, yofs]) {
-      square([gap, 14]);
-      translate([gap/2, circley]) {
-        circle(gap/2);
+    translate([x + 7 - (w/2) - 4.2, y]) {
+      translate([(8.025 - gap)/2, yofs]) {
+        square([gap, 14]);
+        translate([gap/2, circley]) {
+          circle(gap/2);
+        }
       }
     }
-  }
 
-  translate([x + 7 + (w/2) - 4.325, y]) {
-    translate([(8.025 - gap)/2, yofs]) {
-      square([gap, 14]);
-      translate([gap/2, circley]) {
-        circle(gap/2);
+    translate([x + 7 + (w/2) - 4.325, y]) {
+      translate([(8.025 - gap)/2, yofs]) {
+        square([gap, 14]);
+        translate([gap/2, circley]) {
+          circle(gap/2);
+        }
       }
+    }
+  } else {
+    translate([x + 7 - (w/2) - 4.2, y + yofs]) {
+      square([8.025, 14]);
+    }
+    translate([x + 7 + (w/2) - 4.325, y + yofs]) {
+      square([8.025, 14]);
     }
   }
 }
