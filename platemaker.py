@@ -66,13 +66,13 @@ def genscad(args, keydata):
 
     drills = []
 
+    extra_height = args.bottompadding + args.toppadding
+    extra_width = args.leftpadding + args.rightpadding
+
+    key_xofs = args.leftpadding
+    key_yofs = args.bottompadding
+
     if args.ptype == 'sandwich':
-        extra_height = args.bottompadding + args.toppadding
-        extra_width = args.leftpadding + args.rightpadding
-
-        key_xofs = args.leftpadding
-        key_yofs = args.bottompadding
-
         if args.topscrews:
             extra_height = args.drillsize * 6
             key_yofs += args.drillsize * 3
@@ -171,6 +171,8 @@ def genscad(args, keydata):
             drills.append((args.drillsize / 2,
                            width - (1.5 * args.drillsize),
                            height - (1.5 * args.drillsize)))
+    elif args.ptype == 'canoe':
+        drill_width = 3.5 / 2
     elif args.ptype == 'poker':
         drill_width = args.drills / 2
 
@@ -229,6 +231,7 @@ def genscad(args, keydata):
                  'ttrim': args.ttrim,
                  'rtrim': args.rtrim,
                  'ltrim': args.ltrim,
+                 'type': args.ptype,
                  'keys': keys,
                  'stabs': stabs,
                  'rects': rects,
@@ -276,17 +279,23 @@ def get_parser():
     parser.add_argument('--rtrim', type=float, help='right trim', default=0.0)
     parser.add_argument('--ltrim', type=float, help='left trim', default=0.0)
 
+    parser.add_argument('--leftpadding', default=0, type=float)
+    parser.add_argument('--rightpadding', default=0, type=float)
+    parser.add_argument('--toppadding', default=0, type=float)
+    parser.add_argument('--bottompadding', default=0, type=float)
+
     subparsers = parser.add_subparsers(help='plate type', dest='ptype')
 
     subparsers.add_parser('poker', help='poker 60%%')
     subparsers.add_parser('tada', help='tada 68%%')
     subparsers.add_parser('numpad', help='homegrown numpad case')
 
+    canoe_p = subparsers.add_parser('canoe', help='canoe 65%%')
+    canoe_p.set_defaults(rounded_toolsize=3.175,
+                         rounded=True)
+#                         toppadding=8.525)
+
     sandwich_p = subparsers.add_parser('sandwich', help='sandwich case')
-    sandwich_p.add_argument('--leftpadding', default=0, type=float)
-    sandwich_p.add_argument('--rightpadding', default=0, type=float)
-    sandwich_p.add_argument('--toppadding', default=0, type=float)
-    sandwich_p.add_argument('--bottompadding', default=0, type=float)
     sandwich_p.add_argument('--drillsize', default=3.5, type=float)
     sandwich_p.add_argument('--topscrews', default=0)
     sandwich_p.add_argument('--sidescrews', default=0)
@@ -299,11 +308,14 @@ def main(rawargs):
 
     args.cli = sys.argv
 
+    print args
+
     with open(args.infile, 'r') as f:
         j = json.loads(f.read())
 
     genscad(args, j)
     renderscad(args)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

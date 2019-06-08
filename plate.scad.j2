@@ -11,6 +11,11 @@
 
 $fn=128;
 
+top_size = 8.525;
+right_indent = 6.6;
+left_indent = 9.25;
+
+
 module open_stab(x, y, w, inverted) {
   // w = 23.8 for 2u, 2.25u, 2.75u
   // w = 38.1 for 3u
@@ -143,15 +148,69 @@ module rounded_rect(x, y, width, height, radius) {
     }
 }
 
+module extra_poker() {
+}
+
+module subtract_poker() {
+}
+
+module extra_numpad() {
+}
+
+module subtract_numpad() {
+}
+
+module extra_tada() {
+}
+
+module subtract_tada() {
+}
+
+
+module extra_canoe() {
+  union() {
+    rounded_rect({{rtrim}}, {{height}} - {{ttrim}} - {{rounded_toolsize}}, {{width}} - {{ltrim}} - {{rtrim}} - 24.5, top_size + {{ttrim}} + {{rounded_toolsize}}, {{rounded_toolsize / 2}});
+    rounded_rect({{rtrim}}, {{height}} - {{ttrim}} - {{rounded_toolsize}}, {{width}} - {{ltrim}} - {{rtrim}}, top_size + {{ttrim}} + {{rounded_toolsize}} - right_indent, {{rounded_toolsize / 2}});
+    rounded_rect(20, -6.05, 10, 6.05 + {{btrim}} + {{rounded_toolsize}}, {{rounded_toolsize / 2}});
+    rounded_rect(148, -6.05, 10, 6.05 + {{btrim}} + {{rounded_toolsize}}, {{rounded_toolsize / 2}});
+    rounded_rect(276, -6.05, 10, 6.05 + {{btrim}} + {{rounded_toolsize}}, {{rounded_toolsize / 2}});
+  }
+}
+
+module subtract_canoe() {
+  union() {
+    rounded_rect(12.6, {{height}} + top_size - left_indent, 13.2, left_indent + {{ rounded_toolsize }}, {{rounded_toolsize / 2}});
+    rounded_rect({{width}} - 24.5, {{ height }} + top_size - 6.6, 24.5 + {{rounded_toolsize}}, 6.6 + {{rounded_toolsize}}, {{rounded_toolsize / 2}});
+
+    drill(3.5 / 2, 25, -3.025);
+    drill(3.5 / 2, 153, -3.025);
+    drill(3.5 / 2, 281, -3.025);
+
+    drill(3.5 / 2, 42.25, {{height}} + top_size - 3.5);
+    drill(3.5 / 2, 152.65, {{height}} + top_size - 3.5);
+    drill(3.5 / 2, {{width}} - 41.75, {{height}} + top_size - 3.5);
+
+    drill(3.5 / 2, 30.9, {{height}} + top_size - 3);
+    drill(3.5 / 2, {{width}} - 30.5, {{height}} + top_size - 3);
+  }
+}
+
+
 difference() {
+    difference() {
+      union() {
 {% if rounded %}
-    rounded_rect({{rtrim}}, {{btrim}}, {{width}} - {{ltrim}} - {{rtrim}}, {{height}} - {{ttrim}} - {{btrim}}, {{rounded_toolsize / 2}});
+          rounded_rect({{rtrim}}, {{btrim}}, {{width}} - {{ltrim}} - {{rtrim}}, {{height}} - {{ttrim}} - {{btrim}}, {{rounded_toolsize / 2}});
 {%- else %}
-    translate({{rtrim}},{{btrim}}) {
-      square(size=[{{width}} - {{ltrim}} - {{rtrim}},
-                   {{height}} - {{ttrim}} - {{btrim}}]);
-    }
+          translate({{rtrim}},{{btrim}}) {
+            square(size=[{{width}} - {{ltrim}} - {{rtrim}},
+                         {{height}} - {{ttrim}} - {{btrim}}]);
+        }
 {%- endif %}
+          extra_{{ type }}();
+      }
+      subtract_{{type}}();
+    }
 
     union() {
         // Keys
